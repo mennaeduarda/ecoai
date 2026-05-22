@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soluções Aprofundadas — EcoAI Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg-base:#090f0c;--bg-surface:#0e1912;--bg-card:#111f15;--bg-card-hov:#172b1c;--bg-elevated:#192b1e;
+      --green-1:#2deb7f;--green-2:#00d4aa;--green-3:#0af5c8;
+      --green-dim:rgba(45,235,127,0.10);--green-glow:rgba(45,235,127,0.20);
+      --tx-1:#e6f5eb;--tx-2:#85b494;--tx-3:#456857;
+      --bd-1:rgba(45,235,127,0.08);--bd-2:rgba(45,235,127,0.16);--bd-3:rgba(45,235,127,0.38);
+      --sh-card:0 4px 28px rgba(0,0,0,.5),0 0 0 1px var(--bd-2);
+      --sh-glow:0 0 48px rgba(45,235,127,.12);
+      --font-d:'Exo 2',sans-serif;--font-b:'DM Sans',sans-serif;--font-m:'JetBrains Mono',monospace;
+      --r-sm:8px;--r-md:14px;--r-lg:22px;--r-xl:30px;
+      --ease:cubic-bezier(.4,0,.2,1);--dur:.26s;
+    }
+    [data-theme="light"] {
+      --bg-base:#edf7f0;--bg-surface:#e0f0e5;--bg-card:#ffffff;--bg-card-hov:#f3fbf5;--bg-elevated:#eaf6ee;
+      --green-1:#0b7a40;--green-2:#007a60;--green-3:#009870;
+      --green-dim:rgba(11,122,64,0.08);--green-glow:rgba(11,122,64,0.14);
+      --tx-1:#071a0e;--tx-2:#1f5c37;--tx-3:#5a8e6e;
+      --bd-1:rgba(11,122,64,0.10);--bd-2:rgba(11,122,64,0.18);--bd-3:rgba(11,122,64,0.45);
+      --sh-card:0 4px 24px rgba(0,0,0,.08),0 0 0 1px var(--bd-2);
+      --sh-glow:0 0 48px rgba(11,122,64,.10);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-b);background:var(--bg-base);color:var(--tx-1);min-height:100vh;line-height:1.65;overflow-x:hidden;transition:background .35s,color .35s;padding-top:64px}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--bd-1) 1px,transparent 1px),linear-gradient(90deg,var(--bd-1) 1px,transparent 1px);background-size:48px 48px}
+    body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 45% at 18% 12%,rgba(45,235,127,.04) 0%,transparent 65%),radial-gradient(ellipse 55% 38% at 82% 85%,rgba(0,212,170,.04) 0%,transparent 65%)}
+    .container{max-width:1380px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
+
+    /* STICKY HEADER */
+    header{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;background:rgba(9,15,12,.92);backdrop-filter:blur(22px);border-bottom:1px solid var(--bd-2);display:flex;align-items:center;transition:background .35s}
+    [data-theme="light"] header{background:rgba(237,247,240,.92)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 2rem;gap:1rem}
+    .back-btn{display:flex;align-items:center;gap:.5rem;padding:7px 16px;background:var(--bg-card);border:1px solid var(--bd-2);border-radius:100px;cursor:pointer;color:var(--tx-2);font-family:var(--font-b);font-size:.78rem;font-weight:600;text-decoration:none;transition:all var(--dur) var(--ease)}
+    .back-btn:hover{border-color:var(--green-1);color:var(--green-1);background:var(--green-dim)}
+    .header-title{font-family:var(--font-d);font-weight:800;font-size:1.05rem;color:var(--tx-1);letter-spacing:-.02em;display:flex;align-items:center;gap:.5rem}
+    .theme-btn{display:flex;align-items:center;gap:.45rem;padding:7px 16px;background:var(--bg-card);border:1px solid var(--bd-2);border-radius:100px;cursor:pointer;color:var(--tx-2);font-family:var(--font-b);font-size:.78rem;font-weight:500;transition:all var(--dur) var(--ease)}
+    .theme-btn:hover{border-color:var(--green-1);color:var(--green-1);background:var(--green-dim)}
+
+    /* SECTIONS */
+    section{padding:3.5rem 0;position:relative;z-index:1}
+    section+section{border-top:1px solid var(--bd-1)}
+    .sec-eyebrow{display:flex;align-items:center;gap:.55rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--tx-3);margin-bottom:1rem}
+    .sec-eyebrow::before{content:'';width:22px;height:2px;background:var(--green-1);border-radius:1px}
+    .sec-h2{font-family:var(--font-d);font-size:clamp(1.3rem,2.8vw,1.9rem);font-weight:800;letter-spacing:-.022em;color:var(--tx-1);margin-bottom:2rem}
+
+    /* HERO */
+    .hero{padding:3.5rem 0 2rem}
+    .hero-pill{display:inline-flex;align-items:center;gap:.5rem;padding:6px 14px;margin-bottom:1.4rem;background:var(--green-dim);border:1px solid var(--bd-3);border-radius:100px;font-size:.7rem;font-weight:700;color:var(--green-1);text-transform:uppercase;letter-spacing:.08em}
+    .hero-pill::before{content:'';width:6px;height:6px;background:var(--green-1);border-radius:50%;animation:blink 2.2s infinite}
+    @keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+    .hero-h1{font-family:var(--font-d);font-size:clamp(1.8rem,4vw,3.2rem);font-weight:900;line-height:1.06;letter-spacing:-.03em;color:var(--tx-1);margin-bottom:1rem}
+    .hero-h1 em{font-style:normal;color:var(--green-1)}
+    .hero-p{max-width:640px;font-size:.95rem;color:var(--tx-2);margin-bottom:2.2rem;line-height:1.75}
+
+    /* METRICS */
+    .metrics-row{display:flex;gap:1.2rem;flex-wrap:wrap}
+    .metric-box{background:var(--bg-card);border:1px solid var(--bd-2);border-radius:var(--r-lg);padding:1.3rem 1.8rem;text-align:center;min-width:140px}
+    .metric-val{font-family:var(--font-d);font-size:2.2rem;font-weight:900;color:var(--green-1);line-height:1}
+    .metric-lbl{font-size:.75rem;color:var(--tx-3);margin-top:.35rem;font-weight:500}
+
+    /* FILTER BAR */
+    .filter-bar{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:2rem}
+    .fb-btn{display:flex;align-items:center;gap:.4rem;padding:8px 18px;border-radius:100px;border:1px solid var(--bd-2);background:var(--bg-card);color:var(--tx-2);font-family:var(--font-b);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--dur) var(--ease)}
+    .fb-btn:hover{border-color:var(--green-1);color:var(--green-1);background:var(--green-dim)}
+    .fb-btn.active{background:var(--green-1);border-color:var(--green-1);color:var(--bg-base)}
+
+    /* SOLUTION CARDS */
+    .sol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.4rem}
+    .sol-card{background:var(--bg-card);border:1px solid var(--bd-2);border-radius:var(--r-lg);padding:1.6rem;display:flex;flex-direction:column;gap:1rem;opacity:0;transform:translateY(24px);transition:opacity .5s var(--ease),transform .5s var(--ease),background var(--dur),border-color var(--dur),box-shadow var(--dur)}
+    .sol-card.visible{opacity:1;transform:translateY(0)}
+    .sol-card:hover{background:var(--bg-card-hov);border-color:var(--bd-3);box-shadow:var(--sh-card)}
+    .sol-card.hidden-card{display:none}
+
+    .sol-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem}
+    .sol-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:100px;font-size:.7rem;font-weight:700;flex-shrink:0}
+    .tag-agua{background:rgba(0,180,216,.12);color:#00b4d8;border:1px solid rgba(0,180,216,.22)}
+    .tag-ener{background:rgba(255,214,0,.11);color:#d4b000;border:1px solid rgba(255,214,0,.2)}
+    .tag-min{background:rgba(205,160,90,.12);color:#cd9e5a;border:1px solid rgba(205,160,90,.22)}
+    .tag-co2{background:rgba(255,138,76,.12);color:#ff8a4c;border:1px solid rgba(255,138,76,.22)}
+    .tag-lixo{background:rgba(130,210,100,.12);color:#82d264;border:1px solid rgba(130,210,100,.22)}
+
+    .sol-student{font-family:var(--font-m);font-size:.72rem;color:var(--tx-3)}
+
+    .sol-problema{font-size:.8rem;color:var(--tx-3);display:flex;align-items:flex-start;gap:.5rem;padding:.6rem;background:rgba(255,138,76,.05);border-radius:var(--r-sm);border-left:2px solid #ff8a4c66}
+    .sol-solucao{font-size:.88rem;color:var(--tx-1);font-weight:600;line-height:1.45}
+    .sol-como{font-size:.83rem;color:var(--tx-2);line-height:1.65}
+    .sol-exemplo{background:var(--bg-elevated);border:1px solid var(--bd-1);border-radius:var(--r-md);padding:.9rem 1rem;font-size:.8rem;color:var(--tx-2);line-height:1.6}
+    .sol-exemplo strong{color:var(--green-1);font-family:var(--font-m);font-size:.72rem;display:block;margin-bottom:.35rem}
+    .sol-profs{display:flex;flex-wrap:wrap;gap:.4rem;padding-top:.4rem;border-top:1px solid var(--bd-1)}
+    .prof-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:100px;background:var(--green-dim);border:1px solid var(--bd-2);font-size:.67rem;color:var(--tx-3);font-weight:500}
+
+    /* CHARTS GRID */
+    .charts-2x2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem}
+    @media(max-width:900px){.charts-2x2{grid-template-columns:1fr}}
+    .chart-card{background:var(--bg-card);border:1px solid var(--bd-2);border-radius:var(--r-lg);padding:1.6rem;transition:border-color var(--dur)}
+    .chart-card:hover{border-color:var(--bd-3)}
+    .chart-ttl{font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--tx-1);letter-spacing:-.012em}
+    .chart-sub{font-size:.74rem;color:var(--tx-3);margin-top:3px;margin-bottom:1.2rem}
+
+    /* PROF CARDS */
+    .prof-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.1rem}
+    .prof-card{background:var(--bg-card);border:1px solid var(--bd-2);border-radius:var(--r-lg);padding:1.3rem;display:flex;flex-direction:column;gap:.8rem;transition:all var(--dur) var(--ease)}
+    .prof-card:hover{background:var(--bg-card-hov);border-color:var(--bd-3);transform:translateY(-3px)}
+    .prof-card-ico{width:44px;height:44px;border-radius:var(--r-md);background:var(--green-dim);border:1px solid var(--bd-3);display:flex;align-items:center;justify-content:center;color:var(--green-1)}
+    .prof-card-name{font-family:var(--font-d);font-size:.95rem;font-weight:700;color:var(--tx-1)}
+    .prof-card-desc{font-size:.78rem;color:var(--tx-3);line-height:1.55}
+    .prof-card-tags{display:flex;flex-wrap:wrap;gap:.35rem}
+    .pct{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.65rem;font-weight:600;background:var(--green-dim);color:var(--tx-3);border:1px solid var(--bd-1)}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--bd-1);padding:3rem 0;position:relative;z-index:1}
+    .footer-in{display:flex;flex-direction:column;align-items:center;gap:1rem;text-align:center}
+    .footer-brand{display:flex;align-items:center;gap:.5rem;font-family:var(--font-d);font-weight:800;font-size:.9rem;color:var(--tx-3)}
+    .footer-info{font-size:.8rem;color:var(--tx-3);line-height:1.7}
+    .footer-info strong{color:var(--tx-2)}
+    .footer-div{width:36px;height:1px;background:var(--bd-2)}
+    .back-cta{display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 2rem;background:var(--green-dim);border:1px solid var(--bd-3);border-radius:100px;color:var(--green-1);font-family:var(--font-d);font-size:.95rem;font-weight:800;text-decoration:none;transition:all var(--dur) var(--ease)}
+    .back-cta:hover{background:var(--green-1);color:var(--bg-base);transform:translateY(-2px)}
+
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:var(--bg-surface)}
+    ::-webkit-scrollbar-thumb{background:var(--bd-2);border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--green-1)}
+    @media(max-width:768px){.container{padding:0 1rem}.header-inner{padding:0 1rem}.header-title{display:none}.sol-grid{grid-template-columns:1fr}.metrics-row{gap:.8rem}}
+  </style>
+</head>
+<body>
+
+<!-- STICKY HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="back-btn" href="./ecoai-dashboard.html">
+      <i data-lucide="arrow-left" width="13" height="13"></i>
+      Voltar ao Dashboard
+    </a>
+    <div class="header-title">
+      <svg width="22" height="22" viewBox="0 0 44 44" fill="none">
+        <rect width="44" height="44" rx="11" fill="rgba(45,235,127,0.09)" stroke="rgba(45,235,127,0.28)" stroke-width="1"/>
+        <path d="M22 7C22 7 11 12.5 11 22.5C11 28.5 15.8 33.5 22 33.5C28.2 33.5 33 28.5 33 22.5C33 12.5 22 7 22 7Z" fill="rgba(45,235,127,0.18)" stroke="#2deb7f" stroke-width="1.5"/>
+      </svg>
+      🌱 Soluções em Profundidade
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
+      <i data-lucide="sun" width="13" height="13"></i>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="container">
+  <div class="hero">
+    <div class="hero-pill">EcoAI Dashboard · Página 2 de 2</div>
+    <h1 class="hero-h1">Soluções Propostas pela Turma —<br/><em>Como Funcionam na Prática?</em></h1>
+    <p class="hero-p">Da identificação do problema à aplicação real: veja como cada solução proposta pelos estudantes pode ser implementada, com embasamento técnico e exemplos concretos.</p>
+    <div class="metrics-row">
+      <div class="metric-box"><div class="metric-val"><span class="counter" data-to="13">0</span></div><div class="metric-lbl">Soluções Mapeadas</div></div>
+      <div class="metric-box"><div class="metric-val"><span class="counter" data-to="5">0</span></div><div class="metric-lbl">Categorias</div></div>
+      <div class="metric-box"><div class="metric-val"><span class="counter" data-to="13">0</span></div><div class="metric-lbl">Alunos Pesquisadores</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLUTION CARDS -->
+<section id="solucoes">
+  <div class="container">
+    <div class="sec-eyebrow">Soluções Detalhadas</div>
+    <h2 class="sec-h2">Por Aluno e Categoria</h2>
+
+    <div class="filter-bar">
+      <button class="fb-btn active" data-filter="all">Todas</button>
+      <button class="fb-btn" data-filter="agua">💧 Água</button>
+      <button class="fb-btn" data-filter="ener">⚡ Energia</button>
+      <button class="fb-btn" data-filter="min">⛏ Mineração</button>
+      <button class="fb-btn" data-filter="lixo">♻ Lixo Eletrônico</button>
+      <button class="fb-btn" data-filter="co2">🌫 Carbono</button>
+    </div>
+
+    <div class="sol-grid" id="solGrid">
+
+      <!-- Anna Clara -->
+      <div class="sol-card" data-cat="min">
+        <div class="sol-header">
+          <span class="sol-tag tag-min">⛏ Mineração</span>
+          <span class="sol-student">// Anna Clara</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Extração intensiva de minerais raros para fabricação de GPUs e chips de IA.</div>
+        <div class="sol-solucao">Energia Renovável na Mineração + Reciclagem Eletrônica</div>
+        <p class="sol-como">A adoção de energia solar e eólica nas operações de mineração reduz diretamente as emissões de CO₂ do processo. Em paralelo, programas de reciclagem eletrônica recuperam minerais preciosos de hardware descartado, reduzindo a demanda por nova extração e fechando o ciclo dos materiais.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A Apple opera minas de cobalto com energia 100% renovável e recupera metais como ouro e tungstênio de iPhones antigos via robô "Daisy", reduzindo mineração virgem.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">🏭 Eng. Ambiental</span>
+          <span class="prof-tag">⚡ Eng. Elétrico</span>
+          <span class="prof-tag">🏛 Governo</span>
+        </div>
+      </div>
+
+      <!-- Davi Verson -->
+      <div class="sol-card" data-cat="min">
+        <div class="sol-header">
+          <span class="sol-tag tag-min">⛏ Mineração</span>
+          <span class="sol-student">// Davi Verson</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Busca crescente por terras raras sem regulamentação ambiental adequada.</div>
+        <div class="sol-solucao">Regulamentação Ambiental Rigorosa para Extração de Minerais</div>
+        <p class="sol-como">Leis de responsabilidade ambiental exigem que empresas de mineração realizem auditorias, apresentem planos de recuperação de áreas e limitem emissões. A rastreabilidade da cadeia de fornecimento garante que minerais não venham de zonas de conflito ou áreas protegidas.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A União Europeia implementou o "Critical Raw Materials Act" (2024), que estabelece metas obrigatórias de reciclagem e limites para dependência de fontes únicas de extração de minerais críticos.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">💻 Eng. de Software</span>
+          <span class="prof-tag">📜 Gestor de Políticas</span>
+          <span class="prof-tag">🌿 Gestor Ambiental</span>
+        </div>
+      </div>
+
+      <!-- Diego Freitas -->
+      <div class="sol-card" data-cat="ener">
+        <div class="sol-header">
+          <span class="sol-tag tag-ener">⚡ Energia</span>
+          <span class="sol-student">// Diego Freitas</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Escassez de matéria-prima e desperdício no uso de componentes de hardware.</div>
+        <div class="sol-solucao">Otimização de Memória RAM e Hardware de IA</div>
+        <p class="sol-como">Técnicas como quantização de modelos (redução de 32-bit para 8-bit ou 4-bit), pruning de redes neurais e destilação de conhecimento permitem rodar modelos poderosos em hardware menos robusto, reduzindo tanto o consumo energético quanto a demanda por novos chips.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>O modelo LLaMA 3 da Meta, ao ser quantizado para 4-bit, rodou em GPUs comuns de consumidor, reduzindo em até 75% o uso de memória e democratizando o acesso sem novo hardware.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">🤖 Eng. de IA</span>
+          <span class="prof-tag">📊 Cientista de Dados</span>
+          <span class="prof-tag">💻 Programador</span>
+        </div>
+      </div>
+
+      <!-- Eduarda Dias -->
+      <div class="sol-card" data-cat="co2">
+        <div class="sol-header">
+          <span class="sol-tag tag-co2">🌫 Carbono</span>
+          <span class="sol-student">// Eduarda Dias</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Emissão de 200–300t de CO₂ no treinamento de grandes modelos de linguagem.</div>
+        <div class="sol-solucao">Migração para Data Centers com Energia 100% Renovável</div>
+        <p class="sol-como">Transferir o treinamento e inferência de modelos de IA para data centers abastecidos exclusivamente por fontes solar, eólica ou hidrelétrica elimina na origem as emissões de carbono. Sistemas de compra de energia renovável (PPAs) garantem abastecimento verde mesmo em regiões com grid misto.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>O Google DeepMind treina seus modelos em data centers com 90%+ de energia renovável, e o campus da Microsoft na Islândia usa 100% de geotérmica, aproveitando o vulcanismo local.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">📊 Cientista de Dados</span>
+          <span class="prof-tag">⚙ Dev de Hardware</span>
+          <span class="prof-tag">🌿 Especialista em ESG</span>
+        </div>
+      </div>
+
+      <!-- Gustavo Chapaval -->
+      <div class="sol-card" data-cat="ener">
+        <div class="sol-header">
+          <span class="sol-tag tag-ener">⚡ Energia</span>
+          <span class="sol-student">// Gustavo Chapaval</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Alto consumo energético contínuo em servidores e sistemas de resfriamento.</div>
+        <div class="sol-solucao">Eficiência de Servidores + Resfriamento Inteligente</div>
+        <p class="sol-como">A métrica PUE (Power Usage Effectiveness) mede a eficiência de data centers: PUE 1.0 é perfeito, PUE 2.0 significa que metade da energia vai para infraestrutura. Servidores de nova geração com chips ARM e sistemas de resfriamento líquido direto (DLC) reduzem o PUE para próximo de 1.1.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>O data center de Hamina, na Finlândia (Google), usa água do mar para resfriamento e possui PUE de 1.10 — vs. a média da indústria de 1.58, poupando centenas de GWh/ano.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">⚡ Eng. Elétrico</span>
+          <span class="prof-tag">📊 Ciência de Dados</span>
+          <span class="prof-tag">🌿 Gestão Ambiental</span>
+        </div>
+      </div>
+
+      <!-- Gustavo Furtado -->
+      <div class="sol-card" data-cat="lixo">
+        <div class="sol-header">
+          <span class="sol-tag tag-lixo">♻ Lixo Eletrônico</span>
+          <span class="sol-student">// Gustavo Furtado</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Ciclo curto de vida do hardware de IA gera toneladas de e-waste anualmente.</div>
+        <div class="sol-solucao">Logística Reversa e Economia Circular para Hardware</div>
+        <p class="sol-como">A logística reversa cria canais formais de coleta e retorno de hardware obsoleto às fabricantes, que então recuperam metais preciosos e componentes reaproveitáveis. A economia circular vai além: projeta hardware modular e reparável, onde GPUs e memórias podem ser substituídas individualmente.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A Dell Technologies opera um programa de devolução em mais de 80 países, recuperando 90% dos materiais de hardware retornado. Em 2023, reaproveitou mais de 2.500 toneladas de componentes.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">♻ Tec. Ambiental</span>
+          <span class="prof-tag">🌿 Sustentabilidade</span>
+          <span class="prof-tag">📦 Logística</span>
+        </div>
+      </div>
+
+      <!-- Luiz Fernando -->
+      <div class="sol-card" data-cat="co2">
+        <div class="sol-header">
+          <span class="sol-tag tag-co2">🌫 Carbono</span>
+          <span class="sol-student">// Luiz Fernando</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Queima de combustíveis fósseis para geração de energia nos data centers.</div>
+        <div class="sol-solucao">Descarbonização via Renováveis + Políticas Energéticas</div>
+        <p class="sol-como">A transição energética dos data centers envolve PPAs (contratos de compra de energia renovável), créditos de carbono verificados e metas SBTi (Science Based Targets). Políticas públicas com taxação de carbono criam incentivo econômico para a migração.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A Amazon Web Services assinou PPAs para cobrir 100% do consumo com renováveis até 2025 e já tem mais de 400 projetos de energia limpa em operação globalmente.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">☁ Eng. de Sistemas Cloud</span>
+          <span class="prof-tag">🌿 Gestor de Infra Verde</span>
+          <span class="prof-tag">📜 Políticas Públicas</span>
+        </div>
+      </div>
+
+      <!-- Maria Eduarda -->
+      <div class="sol-card" data-cat="agua">
+        <div class="sol-header">
+          <span class="sol-tag tag-agua">💧 Água</span>
+          <span class="sol-student">// Maria Eduarda</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Escassez crescente de água potável agravada pelo consumo de data centers.</div>
+        <div class="sol-solucao">Reutilização de Água e Resfriamento Sustentável</div>
+        <p class="sol-como">Sistemas de circuito fechado reutilizam a mesma água no ciclo de resfriamento sem evaporação. A captação de água pluvial e o tratamento de águas cinzas para uso nos chillers reduz drasticamente a captação de água potável. Indicadores WUE (Water Usage Effectiveness) monitoram eficiência hídrica.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>O data center do Facebook em Luleå, Suécia, usa ar ártico externo para resfriamento (free cooling), eliminando praticamente o consumo de água — WUE próximo de 0.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">🌿 Esp. em Tecnologia Ambiental</span>
+          <span class="prof-tag">⚙ Eng. Mecânico</span>
+        </div>
+      </div>
+
+      <!-- Mario Sergio -->
+      <div class="sol-card" data-cat="agua">
+        <div class="sol-header">
+          <span class="sol-tag tag-agua">💧 Água + CO₂</span>
+          <span class="sol-student">// Mario Sergio</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Data centers em regiões quentes consomem água e energia extras para refrigeração.</div>
+        <div class="sol-solucao">Data Centers em Regiões Frias e Próximas a Reservatórios</div>
+        <p class="sol-como">Instalar infraestrutura computacional em latitudes altas (Escandinávia, Islândia, Canadá) aproveita o frio natural para free cooling, eliminando chillers elétricos. Proximidade a corpos d'água permite resfriamento por troca térmica sem consumo hídrico significativo.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A Microsoft instalou o "Project Natick" — um data center submerso na costa da Escócia, que usou água do oceano para resfriamento e registrou 8× menos falhas que data centers terrestres.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">💻 Eng. Software</span>
+          <span class="prof-tag">🌿 Eng. Ambiental</span>
+          <span class="prof-tag">🏗 Eng. Civil</span>
+        </div>
+      </div>
+
+      <!-- Mateus Cordeiro -->
+      <div class="sol-card" data-cat="agua">
+        <div class="sol-header">
+          <span class="sol-tag tag-agua">💧 Água</span>
+          <span class="sol-student">// Mateus Cordeiro</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Torres de resfriamento evaporativo consomem milhões de litros por instalação/dia.</div>
+        <div class="sol-solucao">Sistemas de Resfriamento de Alta Eficiência Hídrica</div>
+        <p class="sol-como">O resfriamento por imersão em fluido dielétrico (como óleo sintético) elimina totalmente o uso de água, pois o fluido absorve calor diretamente dos chips sem evaporar. O resfriamento líquido direto (DLC) usa circuitos fechados de água com perdas mínimas — redução de até 95% vs. torres evaporativas.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A Intel e a Green Revolution Cooling validaram imersão em fluido dielétrico em data centers reais, com PUE de 1.02 e consumo de água próximo de zero, economizando ~2 milhões de litros/mês por rack.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">🌿 Gestor Ambiental</span>
+          <span class="prof-tag">⚙ Eng. Mecânico</span>
+          <span class="prof-tag">⚡ Eng. Elétrico</span>
+        </div>
+      </div>
+
+      <!-- Matheus Alionço -->
+      <div class="sol-card" data-cat="min">
+        <div class="sol-header">
+          <span class="sol-tag tag-min">⛏ Mineração</span>
+          <span class="sol-student">// Matheus Alionço</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Extração de minerais destrói ecossistemas e degrada solos em larga escala.</div>
+        <div class="sol-solucao">Reflorestamento e Recuperação de Áreas Mineradas</div>
+        <p class="sol-como">Programas de recuperação de áreas degradadas (PRAD) exigem que mineradoras restaurem a vegetação nativa, reconstituam camadas de solo e recuperem cursos d'água. Tecnologias de sensoriamento remoto com IA monitoram a progressão do reflorestamento em tempo real.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>A Vale S.A. comprometeu-se a reflorestar 500 mil hectares até 2030, usando drones e IA para monitorar taxas de sobrevivência de mudas em áreas mineradas no Pará e Minas Gerais.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">🌿 Eng. Ambiental</span>
+          <span class="prof-tag">🌱 Biólogo</span>
+          <span class="prof-tag">🛰 Sensoriamento Remoto</span>
+        </div>
+      </div>
+
+      <!-- Ricardo Pereira -->
+      <div class="sol-card" data-cat="agua">
+        <div class="sol-header">
+          <span class="sol-tag tag-agua">💧 Água</span>
+          <span class="sol-student">// Ricardo Pereira</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Poluição de corpos hídricos por efluentes industriais de data centers e fábricas de chips.</div>
+        <div class="sol-solucao">Reestruturação Ambiental com Apoio de IA</div>
+        <p class="sol-como">Modelos de IA aplicados ao monitoramento de qualidade hídrica detectam contaminantes em tempo real via sensores IoT distribuídos em rios e aquíferos. Sistemas de IA também simulam dispersão de poluentes e otimizam processos de remediação e fitorremediação.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>IBM Watson foi usado para monitorar a bacia do Rio Paranaíba, identificando focos de poluição industrial com antecedência e orientando intervenções de órgãos ambientais brasileiros.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">🌿 Eng. Ambiental</span>
+          <span class="prof-tag">🏗 Eng. Civil</span>
+          <span class="prof-tag">🏛 Arquiteto</span>
+        </div>
+      </div>
+
+      <!-- Vinícius Rebiche -->
+      <div class="sol-card" data-cat="ener agua">
+        <div class="sol-header">
+          <span class="sol-tag tag-ener">⚡ Energia + 💧 Água</span>
+          <span class="sol-student">// Vinícius Rebiche</span>
+        </div>
+        <div class="sol-problema"><i data-lucide="alert-triangle" width="14" height="14" style="flex-shrink:0;color:#ff8a4c;margin-top:2px"></i>Consumo simultâneo excessivo de energia e água nos data centers convencionais.</div>
+        <div class="sol-solucao">Data Centers Submersos + Biocombustíveis + IA Neurossimbólica</div>
+        <p class="sol-como">Três abordagens complementares: (1) Data centers submersos em oceanos usam a termal marinha para resfriamento gratuito; (2) biocombustíveis de segunda geração (resíduos agrícolas) substituem diesel nos geradores de backup; (3) IA Neurossimbólica combina redes neurais com sistemas de regras lógicas, reduzindo parâmetros necessários em 100×.</p>
+        <div class="sol-exemplo"><strong>// EXEMPLO REAL</strong>O "Project Natick" (Microsoft) submerso na Escócia operou por 2 anos com 8× menos falhas, confirmando viabilidade. A IA Neurossimbólica é usada pela IBM no sistema "Neuro-Symbolic AI" para tarefas de raciocínio com fração do custo computacional.</div>
+        <div class="sol-profs">
+          <span class="prof-tag">💻 Programador</span>
+          <span class="prof-tag">📊 Cientista de Dados</span>
+          <span class="prof-tag">🤖 Eng. de IA</span>
+          <span class="prof-tag">⚙ Eng. de ML</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CHARTS 2x2 -->
+<section id="graficos">
+  <div class="container">
+    <div class="sec-eyebrow">Análise Comparativa</div>
+    <h2 class="sec-h2">Dados e Projeções das Soluções</h2>
+    <div class="charts-2x2">
+
+      <div class="chart-card">
+        <div class="chart-ttl">Distribuição das Soluções por Categoria</div>
+        <div class="chart-sub">Proporção de propostas por tema ambiental</div>
+        <div style="position:relative;height:260px;display:flex;align-items:center;justify-content:center">
+          <canvas id="donutChart2"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-ttl">Consumo de Água por Tecnologia de Resfriamento</div>
+        <div class="chart-sub">Litros por dia por instalação de grande porte</div>
+        <div style="position:relative;height:260px">
+          <canvas id="barHorizontal"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-ttl">Projeção de Emissões CO₂ por Data Centers (2020–2030)</div>
+        <div class="chart-sub">Em megatoneladas — com e sem adoção de soluções verdes</div>
+        <div style="position:relative;height:260px">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-ttl">Viabilidade das Soluções por Dimensão</div>
+        <div class="chart-sub">Análise multidimensional das abordagens propostas</div>
+        <div style="position:relative;height:260px;display:flex;align-items:center;justify-content:center">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROF CARDS -->
+<section id="profissionais">
+  <div class="container">
+    <div class="sec-eyebrow">Capital Humano</div>
+    <h2 class="sec-h2">Profissionais Essenciais</h2>
+    <p style="color:var(--tx-2);margin-bottom:1.8rem;max-width:560px;font-size:.9rem;">Cada solução proposta pela turma exige competências específicas. Veja os perfis profissionais e as soluções em que cada um é fundamental:</p>
+    <div class="prof-cards-grid">
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="leaf" width="20" height="20"></i></div>
+        <div class="prof-card-name">Engenheiro Ambiental</div>
+        <div class="prof-card-desc">Coordena recuperação de áreas degradadas, monitoramento hídrico e compliance ambiental de data centers.</div>
+        <div class="prof-card-tags"><span class="pct">Mineração</span><span class="pct">Poluição Hídrica</span><span class="pct">Reflorestamento</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="bar-chart-3" width="20" height="20"></i></div>
+        <div class="prof-card-name">Cientista de Dados</div>
+        <div class="prof-card-desc">Desenvolve modelos de monitoramento ambiental, otimização energética e medição de pegada de carbono de modelos de IA.</div>
+        <div class="prof-card-tags"><span class="pct">Carbono</span><span class="pct">Eficiência Energética</span><span class="pct">IA Neurossimbólica</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="zap" width="20" height="20"></i></div>
+        <div class="prof-card-name">Engenheiro Elétrico</div>
+        <div class="prof-card-desc">Projeta e mantém sistemas de energia renovável, infra elétrica de data centers e redes de distribuição eficiente.</div>
+        <div class="prof-card-tags"><span class="pct">Energia Renovável</span><span class="pct">Data Centers</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="recycle" width="20" height="20"></i></div>
+        <div class="prof-card-name">Gestor de Sustentabilidade</div>
+        <div class="prof-card-desc">Define metas ESG, coordena programas de economia circular e reporta indicadores ambientais às partes interessadas.</div>
+        <div class="prof-card-tags"><span class="pct">Lixo Eletrônico</span><span class="pct">ESG</span><span class="pct">Regulamentação</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="brain" width="20" height="20"></i></div>
+        <div class="prof-card-name">Engenheiro de IA / ML</div>
+        <div class="prof-card-desc">Otimiza arquiteturas de modelos para eficiência computacional — quantização, pruning, destilação e IA Neurossimbólica.</div>
+        <div class="prof-card-tags"><span class="pct">Otimização de Modelos</span><span class="pct">IA Neurossimbólica</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="building-2" width="20" height="20"></i></div>
+        <div class="prof-card-name">Engenheiro Civil</div>
+        <div class="prof-card-desc">Projeta estruturas de data centers em regiões frias ou submersos, garantindo resistência e eficiência construtiva.</div>
+        <div class="prof-card-tags"><span class="pct">Localização Estratégica</span><span class="pct">Remediação</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="settings" width="20" height="20"></i></div>
+        <div class="prof-card-name">Engenheiro Mecânico</div>
+        <div class="prof-card-desc">Desenvolve sistemas de resfriamento líquido, imersão em fluido dielétrico e gestão térmica de servidores.</div>
+        <div class="prof-card-tags"><span class="pct">Resfriamento</span><span class="pct">Sistemas Térmicos</span></div>
+      </div>
+
+      <div class="prof-card">
+        <div class="prof-card-ico"><i data-lucide="terminal" width="20" height="20"></i></div>
+        <div class="prof-card-name">Programador / Dev de Software</div>
+        <div class="prof-card-desc">Implementa ferramentas de monitoramento de carbono em código, APIs de rastreamento energético e dashboards ambientais.</div>
+        <div class="prof-card-tags"><span class="pct">Monitoramento</span><span class="pct">Ferramentas de ESG</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-in">
+      <div class="footer-brand">
+        <svg width="20" height="20" viewBox="0 0 44 44" fill="none">
+          <rect width="44" height="44" rx="11" fill="rgba(45,235,127,0.09)" stroke="rgba(45,235,127,0.28)" stroke-width="1"/>
+          <path d="M22 7C22 7 11 12.5 11 22.5C11 28.5 15.8 33.5 22 33.5C28.2 33.5 33 28.5 33 22.5C33 12.5 22 7 22 7Z" fill="rgba(45,235,127,0.18)" stroke="#2deb7f" stroke-width="1.5"/>
+        </svg>
+        EcoAI Dashboard
+      </div>
+      <div class="footer-div"></div>
+      <p class="footer-info"><strong>Projeto desenvolvido pela turma</strong><br/>Análise dos Impactos Ambientais da Inteligência Artificial<br/>Disciplina: Análise e Metodologia de Sistemas · Tec. Dev. Sistemas · 2025</p>
+      <div class="footer-div"></div>
+      <a class="back-cta" href="./ecoai-dashboard.html">
+        <i data-lucide="arrow-left" width="16" height="16"></i>
+        Voltar ao Dashboard Principal
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  let dark = true;
+  function toggleTheme() {
+    dark = !dark;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.getElementById('themeLabel').textContent = dark ? 'Light Mode' : 'Dark Mode';
+    const ico = document.querySelector('#themeBtn [data-lucide]');
+    if (ico) { ico.setAttribute('data-lucide', dark ? 'sun' : 'moon'); lucide.createIcons(); }
+    refreshCharts();
+  }
+
+  /* FILTER */
+  document.querySelectorAll('.fb-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fb-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('.sol-card').forEach(c => {
+        const cat = c.dataset.cat || '';
+        const show = f === 'all' || cat.split(' ').includes(f);
+        c.classList.toggle('hidden-card', !show);
+      });
+    });
+  });
+
+  /* COUNT-UP */
+  function animCount(el, to, dur = 1200) {
+    const t0 = performance.now();
+    (function tick(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * e);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  /* INTERSECTION OBSERVER */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const el = en.target;
+      el.classList.add('visible');
+      io.unobserve(el);
+    });
+  }, { threshold: 0.10 });
+  document.querySelectorAll('.sol-card').forEach(el => io.observe(el));
+
+  /* metrics count-up on load */
+  document.querySelectorAll('.counter').forEach(el => animCount(el, +el.dataset.to));
+
+  /* CHART HELPERS */
+  function isDarkNow() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+  function txColor()   { return isDarkNow() ? '#85b494' : '#1f5c37'; }
+  function gridColor() { return isDarkNow() ? 'rgba(45,235,127,.06)' : 'rgba(11,122,64,.09)'; }
+  function tipBg()     { return isDarkNow() ? 'rgba(14,25,18,.96)' : 'rgba(237,247,240,.96)'; }
+  function tipTitle()  { return isDarkNow() ? '#2deb7f' : '#0b7a40'; }
+
+  /* DONUT */
+  const donutColors2 = ['#00b4d8','#ffd600','#cd9e5a','#ff8a4c','#82d264'];
+  const donutChart2 = new Chart(document.getElementById('donutChart2').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Água (4)','Energia (3)','Mineração (3)','Carbono (2)','Lixo Eletrônico (1)'],
+      datasets: [{ data: [4,3,3,2,1], backgroundColor: donutColors2.map(c=>c+'cc'), borderColor: isDarkNow()?'#0e1912':'#edf7f0', borderWidth: 3, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: txColor(), font: { family: 'DM Sans', size: 10.5 }, padding: 12, usePointStyle: true, pointStyle: 'circle' } },
+        tooltip: { backgroundColor: tipBg(), borderColor: 'rgba(45,235,127,.25)', borderWidth: 1, titleColor: tipTitle(), bodyColor: txColor(), padding: 11 }
+      }
+    }
+  });
+
+  /* BAR HORIZONTAL */
+  const barH = new Chart(document.getElementById('barHorizontal').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Torres Evaporativas','Resfriamento por Ar','Circuito Fechado','Imersão Dielétrica','Data Center Submerso'],
+      datasets: [{
+        label: 'L/dia',
+        data: [1500000, 50000, 8000, 0, 0],
+        backgroundColor: ['#ff8a4cb3','#ffd600b3','#00b4d8b3','#2deb7fb3','#0af5c8b3'],
+        borderColor: ['#ff8a4c','#ffd600','#00b4d8','#2deb7f','#0af5c8'],
+        borderWidth: 1.5, borderRadius: 6, borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: tipBg(), borderColor: 'rgba(45,235,127,.25)', borderWidth: 1, titleColor: tipTitle(), bodyColor: txColor(), padding: 11,
+          callbacks: { label: ctx => ` ${ctx.raw.toLocaleString('pt-BR')} L/dia` }
+        }
+      },
+      scales: {
+        x: { ticks: { color: txColor(), font: { family: 'DM Sans', size: 10 }, callback: v => v >= 1000000 ? (v/1000000)+'M' : v >= 1000 ? (v/1000)+'k' : v }, grid: { color: gridColor() }, border: { color: gridColor() } },
+        y: { ticks: { color: txColor(), font: { family: 'DM Sans', size: 10.5 } }, grid: { color: 'transparent' } }
+      }
+    }
+  });
+
+  /* LINE */
+  const lineChart = new Chart(document.getElementById('lineChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'],
+      datasets: [
+        { label: 'Sem soluções', data: [200,240,290,345,410,490,580,680,800,940,1100],
+          borderColor: '#ff8a4c', backgroundColor: 'rgba(255,138,76,.08)', borderWidth: 2.5,
+          tension: .35, fill: true, pointRadius: 3, pointBackgroundColor: '#ff8a4c' },
+        { label: 'Com soluções', data: [200,225,245,255,260,255,248,238,225,208,190],
+          borderColor: '#2deb7f', backgroundColor: 'rgba(45,235,127,.08)', borderWidth: 2.5,
+          tension: .35, fill: true, pointRadius: 3, pointBackgroundColor: '#2deb7f',
+          borderDash: [] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: txColor(), font: { family: 'DM Sans', size: 11 }, usePointStyle: true, pointStyle: 'circle' } },
+        tooltip: { backgroundColor: tipBg(), borderColor: 'rgba(45,235,127,.25)', borderWidth: 1, titleColor: tipTitle(), bodyColor: txColor(), padding: 11,
+          callbacks: { label: ctx => ` ${ctx.raw} Mt CO₂` }
+        }
+      },
+      scales: {
+        x: { ticks: { color: txColor(), font: { family: 'DM Sans', size: 10.5 } }, grid: { color: gridColor() }, border: { color: gridColor() } },
+        y: { ticks: { color: txColor(), font: { family: 'DM Sans', size: 10.5 }, callback: v => v+'Mt' }, grid: { color: gridColor() }, border: { color: gridColor() } }
+      }
+    }
+  });
+
+  /* RADAR */
+  const radarChart = new Chart(document.getElementById('radarChart').getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['Viabilidade\nTécnica','Custo\nAcessível','Velocidade de\nResultado','Impacto\nAmbiental','Escalabilidade\nGlobal'],
+      datasets: [
+        { label: 'Energia Renovável', data: [85,60,50,95,90], borderColor: '#2deb7f', backgroundColor: 'rgba(45,235,127,.15)', borderWidth: 2, pointBackgroundColor: '#2deb7f' },
+        { label: 'Resfriamento Eficiente', data: [90,75,80,70,75], borderColor: '#00b4d8', backgroundColor: 'rgba(0,180,216,.12)', borderWidth: 2, pointBackgroundColor: '#00b4d8' },
+        { label: 'IA Neurossimbólica', data: [70,80,65,85,80], borderColor: '#b48cff', backgroundColor: 'rgba(180,140,255,.12)', borderWidth: 2, pointBackgroundColor: '#b48cff' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: txColor(), font: { family: 'DM Sans', size: 10 }, usePointStyle: true, pointStyle: 'circle', padding: 12 } },
+        tooltip: { backgroundColor: tipBg(), borderColor: 'rgba(45,235,127,.25)', borderWidth: 1, titleColor: tipTitle(), bodyColor: txColor(), padding: 11 }
+      },
+      scales: {
+        r: {
+          ticks: { color: txColor(), backdropColor: 'transparent', font: { size: 9 } },
+          grid: { color: gridColor() }, angleLines: { color: gridColor() },
+          pointLabels: { color: txColor(), font: { family: 'DM Sans', size: 10 } },
+          min: 0, max: 100
+        }
+      }
+    }
+  });
+
+  function refreshCharts() {
+    const bdr = isDarkNow() ? '#0e1912' : '#edf7f0';
+    [donutChart2, barH, lineChart, radarChart].forEach(ch => {
+      if (ch.options.plugins?.legend?.labels) ch.options.plugins.legend.labels.color = txColor();
+      if (ch.options.plugins?.tooltip) { ch.options.plugins.tooltip.backgroundColor = tipBg(); ch.options.plugins.tooltip.titleColor = tipTitle(); ch.options.plugins.tooltip.bodyColor = txColor(); }
+      if (ch.options.scales?.x?.ticks) { ch.options.scales.x.ticks.color = txColor(); ch.options.scales.x.grid.color = gridColor(); }
+      if (ch.options.scales?.y?.ticks) { ch.options.scales.y.ticks.color = txColor(); }
+      if (ch.options.scales?.r) { ch.options.scales.r.ticks.color = txColor(); ch.options.scales.r.grid.color = gridColor(); ch.options.scales.r.angleLines.color = gridColor(); ch.options.scales.r.pointLabels.color = txColor(); }
+      ch.update();
+    });
+    donutChart2.data.datasets[0].borderColor = bdr;
+    donutChart2.update();
+  }
+
+  lucide.createIcons();
+</script>
+</body>
+</html>
